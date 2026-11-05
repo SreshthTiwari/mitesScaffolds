@@ -1,0 +1,4 @@
+gradio>=4.0
+# Optional: only needed if you want real LLM hints (see ai_helper.py)
+google-genai>=1.0
+python-dotenv>=1.0

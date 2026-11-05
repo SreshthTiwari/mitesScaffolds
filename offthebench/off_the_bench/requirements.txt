@@ -1,0 +1,14 @@
+# Core (required)
+gradio>=4.0
+numpy
+Pillow
+
+# Pose detection (optional, the app still launches without it).
+# MediaPipe supports Python 3.9-3.12 on most platforms.
+mediapipe>=0.10.14
+
+# Optional: reads the .env file for API keys
+python-dotenv
+
+# Optional: only needed for Feature 6 (AI feedback). Install with:
+#   pip install anthropic

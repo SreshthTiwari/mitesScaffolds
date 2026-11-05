@@ -2,7 +2,7 @@
 ai_helper.py - OPTIONAL feedback from a multimodal AI model.
 
 The app works without this file doing anything. To enable it:
-  1. pip install anthropic
+  1. pip install google-genai
   2. copy .env.example to .env and add your API key
 
 PRIVACY: Photos of people are personal. By default NO image is sent anywhere.
@@ -12,7 +12,6 @@ HONESTY: AI-generated coaching is a general suggestion. It is NOT verified
 biomechanical analysis, and it can be wrong. Always label it that way.
 """
 
-import base64
 import io
 import os
 
@@ -24,12 +23,12 @@ AI_LABEL = ("AI-generated suggestion, not verified biomechanical analysis. "
 
 def is_ai_available():
     """Return (available, message). Never raises."""
-    if not os.environ.get("ANTHROPIC_API_KEY"):
-        return False, "AI feedback is off: no ANTHROPIC_API_KEY found (see .env.example)."
+    if not os.environ.get("GEMINI_API_KEY"):
+        return False, "AI feedback is off: no GEMINI_API_KEY found (see .env.example)."
     try:
-        import anthropic  # noqa: F401
+        from google import genai  # noqa: F401
     except ImportError:
-        return False, "AI feedback is off: run `pip install anthropic`."
+        return False, "AI feedback is off: run `pip install google-genai`."
     return True, "AI feedback is available."
 
 
@@ -54,11 +53,11 @@ def build_prompt(sport, level, measurements):
             f"Give brief technique suggestions.")
 
 
-def encode_image_base64(image_array):
-    """Convert a NumPy image into a base64 JPEG string (the format APIs accept)."""
+def encode_image_jpeg(image_array):
+    """Convert a NumPy image into JPEG bytes (the format the API accepts)."""
     buffer = io.BytesIO()
     Image.fromarray(image_array).convert("RGB").save(buffer, format="JPEG")
-    return base64.b64encode(buffer.getvalue()).decode("utf-8")
+    return buffer.getvalue()
 
 
 # ==================================================
@@ -73,23 +72,24 @@ def get_ai_feedback(prompt, image=None, user_consented_to_send_image=False):
     if not available:
         return message
 
-    import anthropic
+    from google import genai
+    from google.genai import types
 
-    content = []
+    contents = []
     if image is not None and user_consented_to_send_image:
-        content.append({"type": "image", "source": {
-            "type": "base64", "media_type": "image/jpeg",
-            "data": encode_image_base64(image)}})
-    content.append({"type": "text", "text": prompt})
+        contents.append(types.Part.from_bytes(
+            data=encode_image_jpeg(image), mime_type="image/jpeg"))
+    contents.append(prompt)
 
     try:
-        client = anthropic.Anthropic()
-        response = client.messages.create(
-            model=os.environ.get("AI_MODEL", "claude-sonnet-5-5"),
-            max_tokens=500,
-            messages=[{"role": "user", "content": content}],
+        client = genai.Client()  # reads GEMINI_API_KEY automatically
+        response = client.models.generate_content(
+            model=os.environ.get("AI_MODEL", "gemini-3.5-flash"),
+            contents=contents,
+            # Gemini counts its "thinking" tokens in this limit, so keep it generous.
+            config=types.GenerateContentConfig(max_output_tokens=2048),
         )
-        return response.content[0].text
+        return response.text or "AI request returned an empty reply. Try again."
     except Exception as error:
         return f"AI request failed: {error}"
 

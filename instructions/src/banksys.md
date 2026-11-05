@@ -61,30 +61,50 @@ fine, but try the hints first.
 
 ## Set up your project
 
-Open a terminal inside the `the_banksys` folder and run these commands one at a time.
+Open a terminal inside the `the_banksys` folder, then run the commands for your computer **one at a time**.
+
+**Open the terminal in the right folder:**
+
+- **Mac:** open the **Terminal** app, type `cd ` (with a space), drag the `the_banksys` folder onto the window, and press Enter. (Or right-click the folder in Finder and choose **New Terminal at Folder**.)
+- **Windows:** open the `the_banksys` folder in File Explorer, click the address bar at the top, type `powershell`, and press Enter. A PowerShell window opens already inside the folder.
+- **Either:** if you use VS Code, open the folder and choose **Terminal > New Terminal**.
+
+**On a Mac:**
 
 ```bash
-python -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env            # Windows: copy .env.example .env
+cp .env.example .env
+python app.py
+```
+
+**On Windows (PowerShell or Command Prompt):**
+
+```powershell
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+copy .env.example .env
 python app.py
 ```
 
 What each line does:
 
-- `python -m venv venv` creates a private "box" of Python packages just for this project.
-- `source venv/bin/activate` steps into that box. You should now see `(venv)` at the start of your terminal line. **Do this every time you open a new terminal.**
-- `pip install -r requirements.txt` installs the four packages the app needs (Gradio for the web page, Anthropic for the AI, python-dotenv for reading your key, Pillow for images).
-- `cp .env.example .env` makes your private settings file. You can leave the key blank for now.
+- `python -m venv venv` creates a private "box" of Python packages just for this project. (On a Mac the command is `python3` because many Macs have no plain `python` until the box is on.)
+- `source venv/bin/activate` (Mac) or `venv\Scripts\activate` (Windows) steps into that box. You should now see `(venv)` at the start of your terminal line. **Do this every time you open a new terminal.**
+- `pip install -r requirements.txt` installs the four packages the app needs (Gradio for the web page, Google GenAI for the AI, python-dotenv for reading your key, Pillow for images).
+- `cp .env.example .env` (Mac) or `copy .env.example .env` (Windows) makes your private settings file. You can leave the key blank for now.
 - `python app.py` starts the app. Open the address it prints (usually `http://127.0.0.1:7860`).
+
+> **Stuck?** **Windows:** if `python` is "not found", try `py -m venv venv` instead (then use plain `python` once the box is on). If PowerShell says *running scripts is disabled on this system* when you activate, run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`, answer **Y**, and try again. Or just use **Command Prompt** instead of PowerShell. **Mac:** if `python3` is not found, install Python from python.org.
 
 To stop the app, click the terminal and press `Ctrl + C`. **After you edit a Python file you
 must stop and restart the app** to see your change.
 
 ## Demo mode (no API key needed)
 
-The AI part needs an Anthropic API key, which your teacher may give you later. **Without a key
+The AI part needs a Google Gemini API key, which your teacher may give you later (or you can create one at Google AI Studio, aistudio.google.com/apikey). **Without a key
 the app runs in demo mode.** Everything works except the AI never looks at your picture;
 instead it prints a clearly labelled message plus **the prompt your code built**. That is
 perfect for checking your work, so you can finish Steps 1 to 6 without any key.
@@ -566,12 +586,12 @@ function that removes them from each piece? Think about which string method remo
 
 **Goal:** see your whole pipeline working with real feedback.
 
-1. Get an API key from your teacher.
+1. Get a Gemini API key from your teacher (or create one at aistudio.google.com/apikey).
 2. Open `.env` (the file you copied from `.env.example`) and set the key with no quotes and no spaces:
 
 ```text
-ANTHROPIC_API_KEY=sk-ant-your-key-here
-ANTHROPIC_MODEL=claude-sonnet-5-5
+GEMINI_API_KEY=your-key-here
+GEMINI_MODEL=gemini-3.5-flash
 ```
 
 3. Stop the app (`Ctrl + C`) and run `python app.py` again. The yellow demo-mode banner at the top
@@ -592,8 +612,8 @@ You should get a formatted critique with **Strengths**, **Areas to Improve** and
 | Same picture, 3 different areas | Noticeably different advice each time |
 | Same picture, 2 different target styles | Advice that mentions each style |
 
-> **Stuck?** If you see `The AI request failed: ...`, read the end of the message. `401` or
-> `authentication` means the key is wrong or has a space in it. `model` errors mean `ANTHROPIC_MODEL`
+> **Stuck?** If you see `The AI request failed: ...`, read the end of the message. `API key not valid` or
+> `403` means the key is wrong or has a space in it. `model` errors mean `GEMINI_MODEL`
 > has a typo. If the banner still shows, `.env` must be in the same folder as `app.py` and the app must have been restarted.
 
 ## Step 8: Optional extensions

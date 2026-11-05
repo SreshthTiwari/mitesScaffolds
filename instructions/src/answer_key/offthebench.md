@@ -53,23 +53,43 @@ do them. For each one you will find:
 
 ## Set up your project
 
-Open a terminal inside the `off_the_bench` folder and run these commands one at a time.
+Open a terminal inside the `off_the_bench` folder, then run the commands for your computer **one at a time**.
+
+**Open the terminal in the right folder:**
+
+- **Mac:** open the **Terminal** app, type `cd ` (with a space), drag the `off_the_bench` folder onto the window, and press Enter. (Or right-click the folder in Finder and choose **New Terminal at Folder**.)
+- **Windows:** open the `off_the_bench` folder in File Explorer, click the address bar at the top, type `powershell`, and press Enter. A PowerShell window opens already inside the folder.
+- **Either:** if you use VS Code, open the folder and choose **Terminal > New Terminal**.
+
+**On a Mac:**
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env             # Windows: copy .env.example .env
+cp .env.example .env
+python app.py
+```
+
+**On Windows (PowerShell or Command Prompt):**
+
+```powershell
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+copy .env.example .env
 python app.py
 ```
 
 What each line does:
 
-- `python -m venv .venv` creates a private "box" of Python packages just for this project.
-- `source .venv/bin/activate` steps into that box. You should see `(.venv)` at the start of your terminal line. **Do this every time you open a new terminal.**
+- `python -m venv .venv` creates a private "box" of Python packages just for this project. (On a Mac the command is `python3` because many Macs have no plain `python` until the box is on.)
+- `source .venv/bin/activate` (Mac) or `.venv\Scripts\activate` (Windows) steps into that box. You should see `(.venv)` at the start of your terminal line. **Do this every time you open a new terminal.**
 - `pip install -r requirements.txt` installs Gradio (the web page), NumPy (image numbers), Pillow (image files), MediaPipe (pose detection) and python-dotenv (reads your `.env` file).
-- `cp .env.example .env` makes your private settings file. You can leave the key blank for now.
+- `cp .env.example .env` (Mac) or `copy .env.example .env` (Windows) makes your private settings file. You can leave the key blank for now.
 - `python app.py` starts the app. Open the address it prints (usually `http://127.0.0.1:7860`).
+
+> **Stuck?** **Windows:** if `python` is "not found", try `py -m venv .venv` instead (then use plain `python` once the box is on). If PowerShell says *running scripts is disabled on this system* when you activate, run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`, answer **Y**, and try again. Or just use **Command Prompt** instead of PowerShell. **Mac:** if `python3` is not found, install Python from python.org.
 
 > **Warning:** MediaPipe works with **Python 3.9 to 3.12**. If `pip install` complains about MediaPipe,
 > check your version with `python --version`. The app **still launches without MediaPipe**: it just
@@ -81,7 +101,7 @@ What each line does:
 At the top of the page the app prints a line like this:
 
 ```text
-Setup status: MediaPipe is not installed (pip install mediapipe). Pose detection is off. | AI feedback is off: no ANTHROPIC_API_KEY found (see .env.example).
+Setup status: MediaPipe is not installed (pip install mediapipe). Pose detection is off. | AI feedback is off: no GEMINI_API_KEY found (see .env.example).
 ```
 
 That line is your dashboard. It has two halves: **pose detection** (MediaPipe plus its model file) and
@@ -90,8 +110,8 @@ will see `Pose detection is ready.` and `AI feedback is available.`
 
 ## Optional: AI feedback and privacy
 
-AI feedback needs an Anthropic API key (your teacher may give you one) and the extra package:
-`pip install anthropic`. Put the key in `.env` as `ANTHROPIC_API_KEY=...`.
+AI feedback needs a Google Gemini API key (your teacher may give you one, or you can create one at Google AI Studio (aistudio.google.com/apikey)) and the extra package:
+`pip install google-genai`. Put the key in `.env` as `GEMINI_API_KEY=...`.
 
 > **Warning:** Never paste your key into a Python file, share it, or commit `.env` to GitHub.
 > Photos of people are personal. This app sends your photo to the AI **only if the user ticks the
@@ -626,7 +646,7 @@ The first two entries (the photo tip and the level guidance) were already in the
 
 Open `ai_helper.py` and notice three safeguards that are already in the starter. They are not decoration.
 
-- `is_ai_available()` never raises. If there is no key or no `anthropic` package, the app keeps working.
+- `is_ai_available()` never raises. If there is no key or no `google-genai` package, the app keeps working.
 - `get_ai_feedback(...)` only attaches the image `if image is not None and user_consented_to_send_image`. **No consent, no photo.**
 - `AI_LABEL` says the output is "not verified biomechanical analysis". It must stay visible.
 
@@ -664,12 +684,12 @@ Give two or three tips that mention specific body positions, with a short reason
 Give 2-3 short technique tips. The angles come from a single 2D photo, so do not claim certainty. If you are unsure about something, say so.
 ```
 
-> **Note:** With no key, ticking "Also ask an AI model" shows `AI feedback is off: no ANTHROPIC_API_KEY found (see .env.example).`
+> **Note:** With no key, ticking "Also ask an AI model" shows `AI feedback is off: no GEMINI_API_KEY found (see .env.example).`
 > followed by the label. That is expected: the starter formats whatever text comes back, including that message.
 
 ### Turn it on and run the full test plan
 
-Add your key to `.env` (`ANTHROPIC_API_KEY=...`, no quotes and no spaces), run `pip install anthropic`, and restart. The status line should say
+Add your key to `.env` (`GEMINI_API_KEY=...`, no quotes and no spaces), run `pip install google-genai`, and restart. The status line should say
 `AI feedback is available.`
 
 | Test | What you should see |
@@ -683,7 +703,7 @@ Add your key to `.env` (`ANTHROPIC_API_KEY=...`, no quotes and no spaces), run `
 | Any AI answer | `AI_LABEL` text is shown at the bottom |
 
 > **Stuck?** `The AI request failed: ...`: read the end of the message. Authentication errors mean a wrong key or a stray space. If it says
-> `no ANTHROPIC_API_KEY found`, `.env` must be in the same folder as `app.py` and you must have restarted. If the answer ignores your photo, check the
+> `no GEMINI_API_KEY found`, `.env` must be in the same folder as `app.py` and you must have restarted. If the answer ignores your photo, check the
 > consent box is ticked.
 
 ## Step 8: Optional extensions

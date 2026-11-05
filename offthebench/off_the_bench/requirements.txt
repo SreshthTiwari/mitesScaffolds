@@ -11,4 +11,4 @@ mediapipe>=0.10.14
 python-dotenv
 
 # Optional: only needed for Feature 6 (AI feedback). Install with:
-#   pip install anthropic
+#   pip install google-genai

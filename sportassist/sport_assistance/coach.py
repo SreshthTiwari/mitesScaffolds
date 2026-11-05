@@ -202,5 +202,5 @@ def demo_response(message, profile):
         f"You said: \"{message}\"\n\n"
         f"I would coach you on **{sport}**.{side_note} "
         f"Topics I could cover: {topics}.\n\n"
-        "Add an `ANTHROPIC_API_KEY` to your `.env` file to get real, personalized advice."
+        "Add an `GEMINI_API_KEY` to your `.env` file to get real, personalized advice."
     )

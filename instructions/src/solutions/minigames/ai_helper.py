@@ -20,12 +20,12 @@ try:
 except ImportError:
     pass
 
-MODEL = os.getenv("LLM_MODEL", "claude-haiku-5-5")
+MODEL = os.getenv("LLM_MODEL", "gemini-3.5-flash")
 
 
 def llm_available():
     """True if an API key is configured."""
-    return bool(os.getenv("ANTHROPIC_API_KEY"))
+    return bool(os.getenv("GEMINI_API_KEY"))
 
 
 # ==================================================
@@ -62,15 +62,18 @@ def build_hint_prompt(level_title, activity, question, user_attempt):
 
 def call_llm(prompt):
     """Send a prompt to the LLM and return its text reply. Provided for you."""
-    import anthropic  # imported here so the app runs even if it isn't installed
+    from google import genai  # imported here so the app runs even if it isn't installed
+    from google.genai import types
 
-    client = anthropic.Anthropic()  # reads ANTHROPIC_API_KEY from the environment
-    response = client.messages.create(
+    client = genai.Client()  # reads GEMINI_API_KEY from the environment
+    response = client.models.generate_content(
         model=MODEL,
-        max_tokens=200,
-        messages=[{"role": "user", "content": prompt}],
+        contents=prompt,
+        # Gemini counts its "thinking" tokens in this limit, so keep it generous.
+        # (The prompt itself asks for a short hint.)
+        config=types.GenerateContentConfig(max_output_tokens=1024),
     )
-    return response.content[0].text
+    return response.text or "(The AI returned an empty reply.)"
 
 
 def get_hint(level_title, activity, question, user_attempt=""):

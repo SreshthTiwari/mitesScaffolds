@@ -42,8 +42,8 @@ Open the local URL printed in the terminal (usually http://127.0.0.1:7860).
 
 ## API key
 
-- The app uses the Anthropic API (Claude, which can understand images).
-- Put your key in `.env` as `ANTHROPIC_API_KEY=...`. Never share or commit it.
+- The app uses the Google Gemini API (`gemini-3.5-flash`, which can understand images).
+- Put your key in `.env` as `GEMINI_API_KEY=...`. Never share or commit it.
 - **No key?** The app runs in **demo mode**: the UI works, but the AI never
   looks at your image. It shows a clearly labeled message and your built
   prompt so you can check your work. It is *not* real feedback.

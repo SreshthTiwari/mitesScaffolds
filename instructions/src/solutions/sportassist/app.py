@@ -129,7 +129,7 @@ with gr.Blocks(title="Sport Assistance") as demo:
     gr.Markdown("# 🏅 Sport Assistance\nA personalized AI sports coach.")
     if not has_api_key():
         gr.Markdown(
-            "> 🧪 **Demo mode:** no `ANTHROPIC_API_KEY` found. "
+            "> 🧪 **Demo mode:** no `GEMINI_API_KEY` found. "
             "The app works, but coach replies are canned examples."
         )
 

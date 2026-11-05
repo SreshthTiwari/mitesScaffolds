@@ -60,30 +60,50 @@ order you should do them. **It will not hand you the code.** You write it. For e
 
 ## Set up your project
 
-Open a terminal inside the `sport_assistance` folder and run these commands one at a time.
+Open a terminal inside the `sport_assistance` folder, then run the commands for your computer **one at a time**.
+
+**Open the terminal in the right folder:**
+
+- **Mac:** open the **Terminal** app, type `cd ` (with a space), drag the `sport_assistance` folder onto the window, and press Enter. (Or right-click the folder in Finder and choose **New Terminal at Folder**.)
+- **Windows:** open the `sport_assistance` folder in File Explorer, click the address bar at the top, type `powershell`, and press Enter. A PowerShell window opens already inside the folder.
+- **Either:** if you use VS Code, open the folder and choose **Terminal > New Terminal**.
+
+**On a Mac:**
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate          # Windows: .venv\Scripts\activate
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env               # Windows: copy .env.example .env
+cp .env.example .env
+python app.py
+```
+
+**On Windows (PowerShell or Command Prompt):**
+
+```powershell
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+copy .env.example .env
 python app.py
 ```
 
 What each line does:
 
-- `python -m venv .venv` creates a private "box" of Python packages just for this project.
-- `source .venv/bin/activate` steps into that box. You should now see `(.venv)` at the start of your terminal line. **Do this every time you open a new terminal.**
-- `pip install -r requirements.txt` installs Gradio (the web page), the Anthropic library (the AI) and python-dotenv (reads your key).
-- `cp .env.example .env` makes your private settings file. You can leave the key blank for now.
+- `python -m venv .venv` creates a private "box" of Python packages just for this project. (On a Mac the command is `python3` because many Macs have no plain `python` until the box is on.)
+- `source .venv/bin/activate` (Mac) or `.venv\Scripts\activate` (Windows) steps into that box. You should now see `(.venv)` at the start of your terminal line. **Do this every time you open a new terminal.**
+- `pip install -r requirements.txt` installs Gradio (the web page), the Google GenAI library (the AI) and python-dotenv (reads your key).
+- `cp .env.example .env` (Mac) or `copy .env.example .env` (Windows) makes your private settings file. You can leave the key blank for now.
 - `python app.py` starts the app. Open the address it prints (usually `http://127.0.0.1:7860`).
+
+> **Stuck?** **Windows:** if `python` is "not found", try `py -m venv .venv` instead (then use plain `python` once the box is on). If PowerShell says *running scripts is disabled on this system* when you activate, run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`, answer **Y**, and try again. Or just use **Command Prompt** instead of PowerShell. **Mac:** if `python3` is not found, install Python from python.org.
 
 To stop the app, click the terminal and press `Ctrl + C`. **After you edit a Python file you
 must stop and restart the app** to see your change.
 
 ## Demo mode (no API key needed)
 
-The AI parts need an Anthropic API key, which your teacher may give you later. **Without a key
+The AI parts need a Google Gemini API key, which your teacher may give you later (or you can create one at Google AI Studio, aistudio.google.com/apikey). **Without a key
 the app runs in demo mode.** The coach gives a clearly labelled canned reply instead of real advice.
 You can finish Steps 1 to 5 and test everything by printing prompts, so you do not need a key until Step 6.
 
@@ -540,10 +560,10 @@ Two paths: no key means the canned `demo_response`. With a key, it builds the **
 
 This file is finished, so just read it. The key parts:
 
-1. `has_api_key()` returns `True` only if `ANTHROPIC_API_KEY` is set (it is read from `.env` by `load_dotenv()`).
-2. It trims each message down to `role` and `content`, because Gradio may attach extra fields the API does not accept.
-3. `client.messages.create(model=..., system=system_prompt, messages=clean_messages)` is the actual call to the AI. Notice the
-   `system` and `messages` are **separate** arguments, exactly as described in Step 5.
+1. `has_api_key()` returns `True` only if `GEMINI_API_KEY` is set (it is read from `.env` by `load_dotenv()`).
+2. It trims each message down to its role and text, and renames the role `assistant` to `model` (that is what Gemini calls the AI's side), because Gradio may attach extra fields the API does not accept.
+3. `client.models.generate_content(model=..., contents=contents, config=...)` is the actual call to the AI. Notice the
+   system prompt (`system_instruction`, set in the `config`) and the messages (`contents`) are **separate** arguments, exactly as described in Step 5.
 4. A `try / except` turns any failure into a readable message instead of a crash.
 
 ### Optional TODO: a friendly reminder for an empty profile
@@ -598,12 +618,12 @@ That list is the AI's entire "memory". Three messages, and the newest one is las
 
 ### Now try it for real
 
-1. Get an API key from your teacher.
+1. Get a Gemini API key from your teacher (or create one at aistudio.google.com/apikey).
 2. Open `.env` and set the key with no quotes and no spaces:
 
 ```text
-ANTHROPIC_API_KEY=sk-ant-your-key-here
-LLM_MODEL=claude-sonnet-5-5
+GEMINI_API_KEY=your-key-here
+LLM_MODEL=gemini-3.5-flash
 ```
 
 3. Stop and restart the app. The **demo mode** banner at the top should be gone.
@@ -618,7 +638,7 @@ LLM_MODEL=claude-sonnet-5-5
 - **An unsafe request.** Ask something like *"I want to practice with no warm-up and train through pain."* The coach should explain the risk and suggest a safer way instead of just complying. That is your safety rule working.
 
 > **Checkpoint:** Without a key the demo reply should mention your sport and handedness. With a key, a follow-up question must
-> make sense. If you see `The AI request failed: ...`, read the end of the message: `401` or `authentication` means a wrong or
+> make sense. If you see `The AI request failed: ...`, read the end of the message: `API key not valid` or `403` means a wrong or
 > misspelled key, and a `model` error means `LLM_MODEL` has a typo. The key file must be named exactly `.env` and sit next to `app.py`.
 
 > **Stuck?** If the banner still shows after adding a key, you did not restart the app, or the `.env` is in the wrong folder.
@@ -832,10 +852,10 @@ Finished early? Each of these is a real feature. Do them in any order. There are
    "Goals completed: 2 of 4". Think about which function needs to change for each piece.
 3. **Training plans.** Add a "Generate a weekly plan" button that builds a prompt from the profile **and** the topic chosen in the Coaching topics dropdown
    (you will need to pass that dropdown as an extra input). Reuse the ideas from Steps 5 and 7.
-4. **Streaming replies.** Make the text appear as it is written. The Anthropic library has `client.messages.stream(...)`, and Gradio handlers can
+4. **Streaming replies.** Make the text appear as it is written. The Gemini library has `client.models.generate_content_stream(...)`, and Gradio handlers can
    `yield` partial results. This one touches `ai_helper.py`.
 5. **A friendlier empty-state.** Show a short "what can I ask?" list in the chat using the coaching topics for the profile's sport.
-6. **Swap the AI provider.** The app was designed so only `ai_helper.py` knows which AI it talks to. Change just that file to use a different provider and see that nothing else breaks.
+6. **Swap the AI provider.** The app was designed so only `ai_helper.py` knows which AI it talks to. Change just that file to use a different provider (for example Claude or OpenAI) and see that nothing else breaks.
 
 ## What you learned
 

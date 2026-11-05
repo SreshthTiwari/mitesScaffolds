@@ -43,7 +43,7 @@ Open the local URL printed in the terminal.
 The app launches even if MediaPipe, the model file, or an API key is missing; the
 status area tells you what is unavailable.
 
-**Optional AI feedback:** `pip install anthropic`, copy `.env.example` to `.env`, and
+**Optional AI feedback:** `pip install google-genai`, copy `.env.example` to `.env`, and
 add your key. Photos are only sent if the user ticks the consent box. Never commit `.env`.
 
 ## The files
